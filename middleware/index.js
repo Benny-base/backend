@@ -3,6 +3,7 @@ const { privateKey, manyLangConfig } = require('../config')
 const Errors = require('../customErrors')
 const _ = require('lodash')
 const Validator = require('validatorjs')
+const dayjs = require('dayjs')
 
 
 // 如果是app端token访问cms接口  吊销token
@@ -35,9 +36,9 @@ exports.handleErrors = (err, req, res, next) => {
     else res.send({ code: 3000, message: err.message || '未知错误...' })
 }
 
-// 是否超管
-exports.isSuperManager = (req, res, next) => {
-    if(req.auth.role != 1) return next(new Errors.PermissionDenied())
+// 需要超管权限
+exports.needSuperManager = (req, res, next) => {
+    if(req.auth.role != 'super') return next(new Errors.PermissionDenied())
     next()
 }
 
@@ -51,5 +52,12 @@ exports.handleManyLangSetting = (req, res, next) => {
     if(_.has(manyLangConfig, req.headers.lang)){
         Validator.useLang(manyLangConfig[req.headers.lang].valid)
     }
+    next()
+}
+
+// request log
+exports.requestLog = (req, res, next) => {
+    const requestURL = `${req.protocol}://${req.get('host')+req.originalUrl}`
+    console.log(`\n\nDate: ${ dayjs().format('YYYY-MM-DD H:mm:ss') }\nAPI: ${requestURL}\nParams: ${ JSON.stringify(req.body) }`)
     next()
 }

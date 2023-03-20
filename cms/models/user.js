@@ -1,19 +1,23 @@
 const DB = require('../../DB');
 const { DataTypes } = require('sequelize');
+const Role = require('./role');
 
-module.exports = DB.define('users', {
+const model = DB.define('users', {
     username: {
         type: DataTypes.STRING,
     },
     password: {
         type: DataTypes.STRING,
     },
-    role: {
-        type: DataTypes.NUMBER,
-    }
+    role_id: {
+        type: DataTypes.INTEGER,
+    },
 },{
     // 这是其他模型参数
     createdAt: true,
     updatedAt: true
 });
 
+model.hasOne(Role, { foreignKey: 'id' })
+
+module.exports = model

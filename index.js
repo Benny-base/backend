@@ -14,7 +14,11 @@ app.use(parser.urlencoded({ extended: true }))
 app.use(parser.json())
 app.use(cors())
 
+app.use(MW.requestLog)
+
 app.use('/cms', require('./cms/router/user'))
+app.use('/cms', require('./cms/router/role'))
+app.use('/cms', require('./cms/router/menu'))
 
 app.use('/app', require('./app/router/user'))
 

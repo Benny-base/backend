@@ -47,6 +47,14 @@ exports.NotFoundRouter = class extends Error {
     }
 }
 
+exports.KeyExists = class extends Error {
+    constructor(message = 'Key already exists') {
+        super(message)
+        this.name = 'KeyExists'
+        this.code = 2007
+    }
+}
+
 
 
 

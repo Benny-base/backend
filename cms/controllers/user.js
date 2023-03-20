@@ -1,8 +1,32 @@
 
 const Errors = require('../../customErrors');
 const User = require('../models/user');
+const Menu = require('../models/menu');
+const Role = require('../models/role');
 const bcryptjs = require('bcryptjs')
-const { success, jwtSign, encryptPwd, validForm } = require('../../utils')
+const Seq = require('sequelize')
+const { success, jwtSign, validForm } = require('../../utils')
+
+exports.userInfo = async(req, res, next) => {
+    try {
+        const userData = await User.findByPk(req.auth.id , {
+            raw: true,
+            include: { model: Role, attributes: [] },
+            attributes: { include: [[Seq.col('role.menus'), 'routes']]}
+        })
+        if (!userData) return next(new Errors.AccountNotSignUp())
+        
+        if(req.auth.role_id == 1){
+            const routelist = await Menu.findAll()
+            userData.routes = routelist.map(item => item.key)
+        }
+
+        const data = { ...userData }
+        res.send({ ...success, data })
+    } catch (err) {
+        next(err)
+    }
+}
 
 exports.signIn = async(req, res, next) => {
     try {
@@ -12,40 +36,26 @@ exports.signIn = async(req, res, next) => {
         }, next)
         if(isFail) return
 
-        const userData = await User.findOne({ where: { username: req.body.username } })
+        const userData = await User.findOne({ 
+            where: { username: req.body.username }, 
+            raw: true,
+            include: { model: Role, attributes: [] },
+            attributes: { include: [[Seq.col('role.menus'), 'routes']]}
+        })
+
         if (!userData) return next(new Errors.AccountNotSignUp())
-    
         if(!bcryptjs.compareSync(req.body.password, userData.password)) return next(new Errors.AccountOrPwd())
     
+        if(userData.role_id == 1){
+            const routelist = await Menu.findAll()
+            userData.routes = routelist.map(item => item.key)
+        }
+
         const data = {
-            ...userData.dataValues,
-            token: jwtSign(userData.dataValues)
+            ...userData,
+            token: jwtSign(userData)
         }
         res.send({ ...success, data })
-    } catch (err) {
-        next(err)
-    }
-}
-
-exports.addManager = async(req, res, next) => {
-    try {
-        const isFail = validForm(req.body, {
-            username: 'required',
-            password: 'required|min:6',
-        }, next)
-        if(isFail) return
-        
-        const [user, created] = await User.findOrCreate({ 
-            where: { username: req.body.username },
-            defaults: {
-                username: req.body.username,
-                password: encryptPwd(req.body.password),
-                role: 2
-            }
-        })
-        if(!created) return next(new Errors.AccountExists())
-    
-        res.send(success)
     } catch (err) {
         next(err)
     }
