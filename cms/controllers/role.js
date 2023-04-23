@@ -19,20 +19,11 @@ exports.roleList = async(req, res, next) => {
 
 exports.addRole = async(req, res, next) => {
     try {
-        const isFail = validForm(req.body, {
+        validForm(req.body, {
             name: 'required',
-            key: 'required',
-        }, next)
-        if(isFail) return
-        
-        const { name, key, remark, menus } = req.body
-        const [row, created] = await Role.findOrCreate({ 
-            where: { key },
-            defaults: {
-                name, key, remark, menus
-            }
         })
-        if(!created) return next(new Errors.KeyExists())
+        const { name, remark, menus } = req.body
+        const row = await Role.create({ name, remark, menus })
 
         res.send({ ...success })
     } catch (err) {

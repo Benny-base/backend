@@ -18,7 +18,7 @@ module.exports = DB.define('roles', {
         set: function(val) {
             return this.setDataValue('menus', JSON.stringify(val));
         },
-    }
+    },
 },{
     // 这是其他模型参数
     createdAt: true,

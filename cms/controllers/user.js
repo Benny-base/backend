@@ -30,11 +30,10 @@ exports.userInfo = async(req, res, next) => {
 
 exports.signIn = async(req, res, next) => {
     try {
-        const isFail = validForm(req.body, {
+        validForm(req.body, {
             username: 'required',
             password: 'required|min:6',
-        }, next)
-        if(isFail) return
+        })
 
         const userData = await User.findOne({ 
             where: { username: req.body.username }, 

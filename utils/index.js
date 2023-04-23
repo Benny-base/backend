@@ -17,18 +17,13 @@ exports.encryptPwd = (password) => {
     return bcryptjs.hashSync(password, 10)
 }
 
-// 获取第一条错误信息
-exports.getFirstErrMsg = (obj) => {
-    return Object.entries(obj)[0]?.[1]
-}
-
-// 表单验证 返回是否失败
-exports.validForm = (data, rules, next) => {
+// 表单验证 失败抛出错误
+exports.validForm = (data, rules) => {
     let v = new Validator(data, rules)
-    if(v.fails()){
-        next(new Errors.FormValidate(this.getFirstErrMsg(v.errors.all())))
-        return true
-    }
+
+    const getFirstErrMsg = (obj) => Object.entries(obj)[0]?.[1]
+
+    if(v.fails()) throw new Errors.FormValidate(getFirstErrMsg(v.errors.all()))
 }
 
 

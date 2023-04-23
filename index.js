@@ -19,6 +19,7 @@ app.use(MW.requestLog)
 app.use('/cms', require('./cms/router/user'))
 app.use('/cms', require('./cms/router/role'))
 app.use('/cms', require('./cms/router/menu'))
+app.use('/cms', require('./cms/router/enumerate'))
 
 app.use('/app', require('./app/router/user'))
 

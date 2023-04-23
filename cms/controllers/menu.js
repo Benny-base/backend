@@ -29,11 +29,10 @@ exports.menusList = async(req, res, next) => {
 
 exports.addmenu = async(req, res, next) => {
     try {
-        const isFail = validForm(req.body, {
+        validForm(req.body, {
             key: 'required',
             label: 'required',
-        }, next)
-        if(isFail) return
+        })
 
         const { parent_key, key, label, component, sort } = req.body
         const [menu, created] = await Menu.findOrCreate({
